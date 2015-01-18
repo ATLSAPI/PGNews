@@ -45,22 +45,34 @@
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
-    <script type="text/javascript" src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
     <script src="../../plugins/summernote/summernote.js"></script>
     <script src="../../plugins/summernote/bootstrap-wysiwyg.js"></script>
     <script src="../../plugins/summernote/jquery.hotkeys.js"></script>
-    
     <script language="javascript" type="text/javascript">
         $(function () {
-            $("#summernote").summernote();
-            function fileCheck(obj) {
-                var fileExtension = ['jpeg', 'jpg', 'png', 'gif', 'bmp'];
-                if ($.inArray($(obj).val().split('.').pop().toLowerCase(), fileExtension) == -1) {
-                    alert("Only '.jpeg','.jpg', '.png', '.gif', '.bmp' formats are allowed.");
+            $(".summernote").summernote({
+                width: 700,
+                height: 300,
+                codemirror: {
+                    mode: 'text/html',
+                    htmlMode: true,
+                    lineNumbers: true,
+                    theme: 'monokai'
                 }
-            }
+            });
+            //$("#summernote").summernote({
+            //    width: 700,
+            //    height: 300,
+            //    codemirror: {
+            //        mode: 'text/html',
+            //        htmlMode: true,
+            //        lineNumbers: true,
+            //        theme: 'monokai'
+            //    }
+            //});
         });
+        
     </script>
-    @RenderSection("scripts", required: true)
+    @RenderSection("scripts", required: false)
 </body>
 </html>

@@ -2,7 +2,6 @@
 @{
     ViewBag.Title = "Create";
 }
-<script src="~/Scripts/jquery-1.10.2.js"></script>
 <h2>Create</h2>
 
 
@@ -23,37 +22,34 @@
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.ReleaseDate, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.Body, htmlAttributes: new { @class = "control-label col-md-2"})
             <div class="col-md-10">
-                @Html.EditorFor(model => model.ReleaseDate, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.ReleaseDate, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.Body, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Body, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.TextAreaFor(model => model.Body, new { @class = "summernote" })
                 @Html.ValidationMessageFor(model => model.Body, "", new { @class = "text-danger" })
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-md-10">
-                <label>Content</label>
+        <!--div class="form-group">
+            <label class="control-label col-md-2">Content</label>
+            <div class="col-md-10 col-md-offset-2">
                 <div id="summernote"></div>
+                <p>
+                    <button id="edit" class="btn btn-primary" onclick="$('#summernote').summernote({ focus: true });" type="button">Edit</button>
+                    <button id="save" class="btn btn-primary" onclick="var aHTML = $('#summernote').code(); $('#Body').val(aHTML);$('#summernote').destroy();" type="button">Save</button>
+                </p>
             </div>
-        </div>
+
+        </div-->
         <div class="form-group">
             @Html.LabelFor(model => model.Image, new { @class = "control-label col-md-2" })
-            <div class="col-md-10" style="width:300px;">
-                <input name="ImageData" type="file" onchange="fileCheck(this)"/>
+            <div class="col-md-10">
+                <input id="theFile" name="theFile" type="file" onchange="fileCheck(this)" />
                 @Html.ValidationMessageFor(model => model.Image)
             </div>
         </div>
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Create" class="btn btn-default" />
+                <input type="submit" value="Create" class="btn btn-default" onclick="var aHTML = $.trim($('#body').val()); $('#body').val(aHTML)" />
             </div>
         </div>
     </div>

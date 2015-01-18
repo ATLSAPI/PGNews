@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using PagedList;
 using WebApplication1.Models;
 
 namespace WebApplication1.Controllers
@@ -16,11 +17,28 @@ namespace WebApplication1.Controllers
         private NewsDBContext db = new NewsDBContext();
 
         // GET: News
-        public ActionResult Index()
+        public ActionResult Index(string sortBy, int? page)
         {
-            return View(db.News.ToList());
-        }
+            ViewBag.SortNameParameter = string.IsNullOrEmpty(sortBy) ? "Name desc"
+            : "";
 
+            ViewBag.SortGenderParameter = string.IsNullOrEmpty(sortBy) ? "Gender desc"
+                : "Gender";
+            var employee = db.News.AsQueryable();
+
+            switch (sortBy)
+            {
+                case "Name desc":
+                    employee = employee.OrderByDescending(x => x.ReleaseDate);
+                    break;
+
+                default:
+                    employee = employee.OrderByDescending(x => x.Title);
+                    break;
+            }
+            return (View(employee.ToPagedList(pageNumber: page ?? 1, pageSize: 4)));
+        }
+       
         // GET: News/Details/5
         public ActionResult Details(int? id)
         {
@@ -47,9 +65,10 @@ namespace WebApplication1.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "ID,Title,ReleaseDate,Body, Image")] News news, HttpPostedFileBase file)
+        public ActionResult Create([Bind(Include = "ID,Title,ReleaseDate,Body,Image")] News news, HttpPostedFileBase theFile)
         {
-            news.Image = ConvertToBytes(file);
+            news.Image = ConvertToBytes(theFile);
+            news.ReleaseDate = DateTime.Today;
             if (ModelState.IsValid)
             {
                 db.News.Add(news);
@@ -60,11 +79,11 @@ namespace WebApplication1.Controllers
             return View(news);
         }
         // Covert to bytes
-        public byte[] ConvertToBytes(HttpPostedFileBase image)
+        public byte[] ConvertToBytes(HttpPostedFileBase theFile)
         {
             byte[] imageBytes = null;
-            BinaryReader reader = new BinaryReader(Request.Files[0].InputStream);
-            imageBytes = reader.ReadBytes((int)Request.Files[0].ContentLength);
+            BinaryReader reader = new BinaryReader(theFile.InputStream);
+            imageBytes = reader.ReadBytes((int)theFile.ContentLength);
             return imageBytes;
         }
         //
@@ -109,14 +128,19 @@ namespace WebApplication1.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "ID,Title,ReleaseDate,Body,Image")] News news, HttpPostedFileBase file)
+        public ActionResult Edit([Bind(Include = "ID,Title,ReleaseDate,Body,Image")] News news, HttpPostedFileBase theFile)
         {
-            news.Image = ConvertToBytes(file);
-            if (ModelState.IsValid)
+            if (theFile.ContentLength > 0)
             {
-                db.Entry(news).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
+
+                news.Image = ConvertToBytes(theFile);
+                news.ReleaseDate = DateTime.Today;
+                if (ModelState.IsValid)
+                {
+                    db.Entry(news).State = EntityState.Modified;
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
             }
             return View(news);
         }
