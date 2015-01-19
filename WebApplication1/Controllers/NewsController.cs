@@ -17,14 +17,29 @@ namespace WebApplication1.Controllers
         private NewsDBContext db = new NewsDBContext();
 
         // GET: News
-        public ActionResult Index(string sortBy, int? page)
+        public ActionResult Index(string sortBy, string currentFilter, string searchString, int? page)
         {
-            ViewBag.SortNameParameter = string.IsNullOrEmpty(sortBy) ? "Name desc"
-            : "";
+            ViewBag.CurrentSort = sortBy;
+            ViewBag.SortNameParameter = string.IsNullOrEmpty(sortBy) ? "Name desc" : "";
+            ViewBag.SortGenderParameter = string.IsNullOrEmpty(sortBy) ? "Gender desc" : "Gender";
+            if (searchString != null)
+            {
+                page = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
 
-            ViewBag.SortGenderParameter = string.IsNullOrEmpty(sortBy) ? "Gender desc"
-                : "Gender";
-            var employee = db.News.AsQueryable();
+            ViewBag.CurrentFilter = searchString;
+            var employee = from s in db.News
+                           select s;
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                employee = employee.Where(s => s.Title.Contains(searchString));
+                ViewBag.SearchMessage = employee.Count() + " news items match your search criteria:"+" '"+searchString+"'";
+                ViewBag.Clear = "<input type='reset' value='Reset' />";
+            }
 
             switch (sortBy)
             {
@@ -33,8 +48,12 @@ namespace WebApplication1.Controllers
                     break;
 
                 default:
-                    employee = employee.OrderByDescending(x => x.Title);
+                    employee = employee.OrderByDescending(x => x.ReleaseDate);
                     break;
+            }
+            if (employee.Count()<1)
+            {
+                ViewBag.Message = "No Results Found";
             }
             return (View(employee.ToPagedList(pageNumber: page ?? 1, pageSize: 4)));
         }
@@ -55,6 +74,7 @@ namespace WebApplication1.Controllers
         }
 
         // GET: News/Create
+        [Authorize(Roles = "news-admin")]
         public ActionResult Create()
         {
             return View();
@@ -63,12 +83,13 @@ namespace WebApplication1.Controllers
         // POST: News/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "news-admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "ID,Title,ReleaseDate,Body,Image")] News news, HttpPostedFileBase theFile)
         {
             news.Image = ConvertToBytes(theFile);
-            news.ReleaseDate = DateTime.Today;
+            news.ReleaseDate = DateTime.Now;
             if (ModelState.IsValid)
             {
                 db.News.Add(news);
@@ -109,6 +130,7 @@ namespace WebApplication1.Controllers
         }
 
         // GET: News/Edit/5
+        [Authorize(Roles = "news-admin")]
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -126,6 +148,7 @@ namespace WebApplication1.Controllers
         // POST: News/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "news-admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "ID,Title,ReleaseDate,Body,Image")] News news, HttpPostedFileBase theFile)
@@ -134,7 +157,7 @@ namespace WebApplication1.Controllers
             {
 
                 news.Image = ConvertToBytes(theFile);
-                news.ReleaseDate = DateTime.Today;
+                news.ReleaseDate = DateTime.Now;
                 if (ModelState.IsValid)
                 {
                     db.Entry(news).State = EntityState.Modified;
@@ -146,6 +169,7 @@ namespace WebApplication1.Controllers
         }
 
         // GET: News/Delete/5
+        [Authorize(Roles = "news-admin")]
         public ActionResult Delete(int? id)
         {
             if (id == null)
@@ -161,6 +185,7 @@ namespace WebApplication1.Controllers
         }
 
         // POST: News/Delete/5
+        [Authorize(Roles = "news-admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
@@ -178,6 +203,21 @@ namespace WebApplication1.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
+        }
+    }
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, Inherited = true, AllowMultiple = true)]
+    public class AuthorizeAttribute : System.Web.Mvc.AuthorizeAttribute
+    {
+        protected override void HandleUnauthorizedRequest(System.Web.Mvc.AuthorizationContext filterContext)
+        {
+            if (filterContext.HttpContext.Request.IsAuthenticated)
+            {
+                filterContext.Result = new System.Web.Mvc.HttpStatusCodeResult((int)System.Net.HttpStatusCode.Forbidden);
+            }
+            else
+            {
+                base.HandleUnauthorizedRequest(filterContext);
+            }
         }
     }
 }
