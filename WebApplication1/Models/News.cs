@@ -15,7 +15,7 @@ namespace WebApplication1.Models
         [AllowHtml]
         [Required]
         //<p>| <em>| <strong>| <a>| <ol>| <ul>| <li> | <p>| </em>| </strong>| </ol>| </ul>| </li>
-        //[RegularExpression(@"^([^<]|<p>|</p>|<strong>|</strong>|a z|A Z|1 9|(.\.))*$", ErrorMessage="Input error. Only <p>, <em>, <strong>, <a>, <ol>, <ul>, <li> are allowed")]
+        [RegularExpression(@"^([^<]|<p>| <em>| <strong>| <a>| <ol>| <ul>| <li> | <p>| </em>| </strong>| </ol>| </ul>| </li>|a z|A Z|1 9|(.\.))*$", ErrorMessage="Content error. Only <p>, <em>, <strong>, <a>, <ol>, <ul>, <li> are allowed")]
         [StringLength(500000, MinimumLength = 10, ErrorMessage = "Valid news content is required.")]
         public string Body { get; set; }
         public byte[] Image { get; set; }

@@ -36,7 +36,7 @@
             @Html.LabelFor(model => model.Image, new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 <input id="theFile" name="theFile" type="file" onchange="fileCheck(this)" />
-                @Html.ValidationMessageFor(model => model.Image)
+                @Html.ValidationMessageFor(model => model.Image, "", new { @class = "text-danger" })
             </div>
         </div>
 

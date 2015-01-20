@@ -1,48 +1,53 @@
 ﻿@model WebApplication1.Models.News
+@using System.Web.Mvc.Html;
 
 @{
     ViewBag.Title = "Details";
 }
 
-<h2>Details</h2>
-
-<div>
-    <h4>News</h4>
-    <hr />
+<div class="col-lg-10">
     <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-
+        
         <dd>
-            @Html.DisplayFor(model => model.Title)
+            <h3>
+                @Html.DisplayFor(model => model.Title)
+            </h3>
+            Posted on @Html.DisplayFor(model => model.ReleaseDate)
+            <hr />
         </dd>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.ReleaseDate)
-        </dt>
+       
 
         <dd>
-            @Html.DisplayFor(model => model.ReleaseDate)
+           
         </dd>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.Body)
-        </dt>
+       
 
         <dd>
-            @Html.DisplayFor(model => model.Body)
+            <span class="col-lg-4 pull-left">
+                <img src="/News/RetrieveImage/@Model.ID" alt="" height=200 width="200" />
+            </span>
+            <span class="pull-right col-lg-8">
+                @Html.Raw(HttpUtility.HtmlDecode(Model.Body))
+            </span>
         </dd>
 
     </dl>
-</div>
-<p>
-    @if (User.Identity.IsAuthenticated)
-    {
-        if (User.IsInRole("news-admin"))
+    <p>
+        @if (User.Identity.IsAuthenticated)
         {
-            @Html.ActionLink("Edit", "Edit", new { id = Model.ID })
+            if (User.IsInRole("news-admin"))
+            {
+                @Html.ActionLink("Edit", "Edit", new { id = Model.ID })
+                @Html.Raw(" | ")
+            }
         }
-    }
-    @Html.ActionLink("Back to List", "Index")
-</p>
+        @Html.ActionLink("Back to List", "Index")
+        @if (Request.QueryString["search"]=="true")
+        {
+            @Html.Raw("| "+"<a href='javascript:history.back()'>Go Back to Results</a>")
+        }
+    </p>
+</div>
+

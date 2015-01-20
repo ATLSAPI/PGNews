@@ -7,68 +7,65 @@
     ViewBag.Title = "Index";
 }
 
-<h2>Index</h2>
+<h2>Latest Postgraduate news</h2>
 
 <p>
     @if (User.Identity.IsAuthenticated)
     {
         if (User.IsInRole("news-admin"))
         {
-           @Html.ActionLink("Create New", "Create")
+           @Html.ActionLink("Add News", "Create")
         }
     }
+    @Html.Raw(ViewBag.Back)
 </p>
-@using (Html.BeginForm())
+@using (Html.BeginForm("","News",FormMethod.Post,new { @class ="form-inline"}))
 {
-    <p>
-        Find by Heading: @Html.TextBox("SearchString")
-        <input type="submit" value="Search" />
+    <div class="input-group">
+        <span class="h4">Find by Heading&nbsp;&nbsp;</span>  @Html.TextBox("SearchString", null, new { @class = "input-sm"})
+        &nbsp;&nbsp;
+        <button class="btn" type="submit">Search</button>&nbsp;
         @Html.Raw(ViewBag.Clear)
-    </p>
+    </div>
 }
 <p class="h4">@Html.Raw(ViewBag.SearchMessage)</p>
 <div class="col-lg-8">
-    <table class="table table-striped table-responsive">
 
     @foreach (var item in Model)
     {
-        <tr>
-            <td>
-                <img src="/News/RetrieveImage/@item.ID" alt="" height=200 width="200" />
-            </td>
-            <td colspan="3">
-                <div class="text-center" >
-                    <p class="h4 text-center">
-                        @Html.ActionLink(item.Title, "Details", new { id = item.ID })
-                    </p>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <p class="h4 text-center">
+                    @Html.ActionLink(item.Title, "Details", new { id = item.ID, search = ViewBag.Search})<br />
                     <small class="text-center">Posted on @Html.DisplayFor(modelItem => item.ReleaseDate)</small>
+                </p>
+                
+            </div>
+            <div class="panel-body" style="max-height: 200px;overflow-y: hidden;overflow-wrap:break-word;">
+                <div class="col-lg-4">
+                    <img src="/News/RetrieveImage/@item.ID" alt="" height=200 width="200" />
                 </div>
-                <div class="panel-body" style="max-height: 100px;overflow-y: hidden;overflow-wrap:break-word;">
+                <div class="col-lg-8">
                     @Html.Raw(item.Body)
                 </div>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="4">
-                @if ( User.Identity.IsAuthenticated ){
-                    if ( User.IsInRole("news-admin") ){
-                        @Html.ActionLink("Delete", "Delete", new { id = item.ID })
-                    }
+            </div>
+          <div class="panel-footer">
+            @if (User.Identity.IsAuthenticated)
+            {
+                if (User.IsInRole("news-admin"))
+                {
+                    @Html.ActionLink("Delete", "Delete", new { id = item.ID })
                 }
-            </td>
-        </tr>
+            }
+          </div>
+        </div>
+            
     }
-        <tr>
-            <td colspan="4">
+            <div>
                 <h1>@Html.Raw(ViewBag.Message)</h1>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="4">
-                @Html.PagedListPager(Model, page => Url.Action("Index", new { page = page }))
-            </td>
-        </tr>
-        
+            </div>
 
-    </table>
+            <div>
+                @Html.PagedListPager(Model, page => Url.Action("Index", new { page = page }))
+            </div>
 </div>

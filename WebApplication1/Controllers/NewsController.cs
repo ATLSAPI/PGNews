@@ -38,7 +38,9 @@ namespace WebApplication1.Controllers
             {
                 employee = employee.Where(s => s.Title.Contains(searchString));
                 ViewBag.SearchMessage = employee.Count() + " news items match your search criteria:"+" '"+searchString+"'";
-                ViewBag.Clear = "<input type='reset' value='Reset' />";
+                ViewBag.Clear = "<button class='btn' href='/'>Clear search</button/>";
+                ViewBag.Back = "| <a href='javascript:history.back()'>Go Back</a>";
+                ViewBag.Search = "true";
             }
 
             switch (sortBy)
@@ -88,15 +90,31 @@ namespace WebApplication1.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "ID,Title,ReleaseDate,Body,Image")] News news, HttpPostedFileBase theFile)
         {
-            news.Image = ConvertToBytes(theFile);
-            news.ReleaseDate = DateTime.Now;
-            if (ModelState.IsValid)
+            if (theFile != null && theFile.ContentLength > 0)
             {
-                db.News.Add(news);
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                var supportedTypes = new[] { "jpg", "jpeg", "png" };
+                var fileExt = System.IO.Path.GetExtension(theFile.FileName).Substring(1);
+                if (!supportedTypes.Contains(fileExt))
+                {
+                    ModelState.AddModelError("Image", "Invalid type. Only the following types (jpg, jpeg, png) are supported.");
+                }
+                else
+                {
+                    news.Image = ConvertToBytes(theFile);
+                    news.ReleaseDate = DateTime.Now;
+                    if (ModelState.IsValid)
+                    {
+                        db.News.Add(news);
+                        db.SaveChanges();
+                        return RedirectToAction("Index");
+                    }
+                }
             }
-
+            else
+            {
+                ModelState.AddModelError("Image", "Please choose an Image");
+            }
+            
             return View(news);
         }
         // Covert to bytes
@@ -153,17 +171,30 @@ namespace WebApplication1.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "ID,Title,ReleaseDate,Body,Image")] News news, HttpPostedFileBase theFile)
         {
-            if (theFile.ContentLength > 0)
+            //string directory = @"D:\Temp\";
+            if (theFile != null && theFile.ContentLength > 0)
             {
-
-                news.Image = ConvertToBytes(theFile);
-                news.ReleaseDate = DateTime.Now;
-                if (ModelState.IsValid)
+                var supportedTypes = new[] { "jpg", "jpeg", "png" };
+                var fileExt = System.IO.Path.GetExtension(theFile.FileName).Substring(1);
+                if (!supportedTypes.Contains(fileExt))
                 {
-                    db.Entry(news).State = EntityState.Modified;
-                    db.SaveChanges();
-                    return RedirectToAction("Index");
+                    ModelState.AddModelError("Image", "Invalid type. Only the following types (jpg, jpeg, png) are supported.");
                 }
+                else
+                {
+                    news.Image = ConvertToBytes(theFile);
+                    news.ReleaseDate = DateTime.Now;
+                    if (ModelState.IsValid)
+                    {
+                        db.Entry(news).State = EntityState.Modified;
+                        db.SaveChanges();
+                        return RedirectToAction("Index");
+                    }
+                }
+            }
+            else
+            {
+                ModelState.AddModelError("Image", "Please choose an Image");
             }
             return View(news);
         }

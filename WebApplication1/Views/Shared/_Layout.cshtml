@@ -7,9 +7,9 @@
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
     <!-- include summernote css/js-->
-    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" />
     <link href="../../plugins/summernote/summernote.css" rel="stylesheet">
+    <link href="../../plugins/summernote/summernote-bs3.css" rel="stylesheet">
     
 
 </head>
@@ -22,14 +22,14 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @Html.ActionLink("Postgraduate News", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                @Html.ActionLink("Postgraduate News", "Index", "News", new { area = "" }, new { @class = "navbar-brand" })
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
-                    <li>@Html.ActionLink("About", "About", "Home")</li>
-                    <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
-                    <li>@Html.ActionLink("News", "Index", "News")</li>
+                    <!--li>Html.ActionLink("Home", "Index", "Home")</!-li>
+                    <li>Html.ActionLink("About", "About", "Home")</li>
+                    <li>Html.ActionLink("Contact", "Contact", "Home")</li>
+                    <li>Html.ActionLink("News", "Index", "News")</li-->
                 </ul>
                 @Html.Partial("_LoginPartial")
             </div>
@@ -37,17 +37,11 @@
     </div>
     <div class="container body-content">
         @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
-        </footer>
     </div>
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
-    <script src="../../plugins/summernote/summernote.js"></script>
-    <script src="../../plugins/summernote/bootstrap-wysiwyg.js"></script>
-    <script src="../../plugins/summernote/jquery.hotkeys.js"></script>
+    <script src="../../plugins/summernote/summernote.min.js"></script>
     <script language="javascript" type="text/javascript">
         $(function () {
             $(".summernote").summernote({
